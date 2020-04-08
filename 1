@@ -1,0 +1,157 @@
+def user_option():
+    print("")
+    print("***Tax Calculator System***")
+    print("Please select you condition")
+    print("[1] Single/Separated/Divorced/Widowed")
+    print("[2] Married")
+    print("")
+    return(input('Select: '))
+
+def cal_MPF(income):
+    if income < 7100*12:
+        mpf = 0
+    elif income >= 30000*12:
+        mpf = 1500*12
+    else:
+        mpf = income*0.05
+    return mpf
+
+def cal_tax(nt):
+    sRate = 0.15
+    sTax = nt * sRate
+
+    pRate = 0.02
+    pTax = 0
+    nci_per_year = 50000
+    while nt > 0:
+        if nt > nci_per_year:
+            pTax = pTax + nci_per_year * pRate
+            pRate += 0.04
+            nt = nt - nci_per_year
+            if pRate > 0.14:
+                pTax = pTax + nt * 0.17
+                break
+        else:
+            pTax = pTax + nt * pRate
+            break
+
+    if pTax >= sTax:
+        tax = sTax
+    else:
+        tax = pTax
+    return tax
+
+def chk_Tax(nt):
+    sRate = 0.15
+    sTax = nt * sRate
+
+    pRate = 0.02
+    pTax = 0
+    nci_per_year = 50000
+    while nt > 0:
+        if nt > nci_per_year:
+            pTax = pTax + nci_per_year * pRate
+            pRate += 0.04
+            nt = nt - nci_per_year
+            if pRate > 0.14:
+                pTax = pTax + nt * 0.17
+                break
+        else:
+            pTax = pTax + nt * pRate
+            break
+
+    if pTax >= sTax:
+        return 1
+    else:
+        return 2
+
+#net changeable income with separate taxation
+def cal_SncIncome(income):
+    basic_allowance = 132000
+    netIncome = income - cal_MPF(income)
+    check = chk_Tax(income)
+    if check == 1:
+        nci = netIncome
+        return nci
+    elif netIncome>basic_allowance:
+        nci = netIncome - basic_allowance
+        return nci
+    else:
+        return 0
+
+#net changeable income with joint taxation
+def cal_JncIncome(husband_income, wife_income):
+    basic_allowance = 132000*2
+    husband_netIncome = husband_income - cal_MPF(husband_income)
+    wife_netIncome = wife_income - cal_MPF(wife_income)
+    joint_netIncome = husband_netIncome + wife_netIncome
+    chk_husband = chk_Tax(husband_netIncome)
+    chk_wife = chk_Tax(wife_netIncome)
+    if chk_husband == 1:
+        nci = joint_netIncome
+        return nci
+    elif chk_wife == 1:
+        nci = joint_netIncome
+        return nci
+    elif joint_netIncome > basic_allowance:
+        nci = joint_netIncome - basic_allowance
+        return nci
+    else:
+        return 0
+
+def cal_SncTax():
+    single_income = int(input("Please Enter your income: $"))
+
+    single_nci = cal_SncIncome(single_income)
+
+    print("\nYour MPF = $" + str(cal_MPF(single_income)))
+    print("\nYour net chargeable income = $" + str(single_nci))
+
+    print("\nYour tax = $" + str(cal_tax(single_nci)))
+
+    input("\nPress Enter to continue...")
+
+def cal_JncTax():
+    husband_income = int(input("Please input husband's personal input per year: $"))
+    wife_income = int(input("Please input wife's personal input per year: $"))
+
+    husband_nci = cal_SncIncome(husband_income)
+    wife_nci = cal_SncIncome(wife_income)
+    joint_nci = cal_JncIncome(husband_income,wife_income)
+
+    print("\nHusband's MPF = $" + str(cal_MPF(husband_income)))
+    print("Wife's MPF = $" + str(cal_MPF(wife_income)))
+
+    print("\nHusband's net chargeable income = $" + str(husband_nci))
+    print("Husbandls tax = $" + str(cal_tax(husband_nci)))
+
+    print("\nWife's net chargeable income = $" + str(wife_nci))
+    print("Wife's tax = $" + str(cal_tax(wife_nci)))
+
+    sTax = cal_tax(husband_nci)+cal_tax(wife_nci)
+
+    print("\nSeparate taxation = $" + str(sTax))
+
+    jTax = cal_tax(joint_nci)
+    print("Joint net chargeable income = $" + str(joint_nci))
+    print("Joint taxation = $" + str(jTax))
+
+    if sTax<=jTax:
+        print("\nRecommended method = Seperated taxation $"+str(sTax))
+    else:
+        print("\nRecommended method = Joint taxation $" + str(jTax))
+    input("\nPress Enter to continue...")
+
+option = user_option()
+
+while option != "0":
+    if option == "1":
+        cal_SncTax()
+    if option == "2":
+        cal_JncTax()
+    else:
+        print("\n!!!!!Please enter a number!!!!!")
+
+    option = user_option()
+
+print('Finished')
